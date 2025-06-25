@@ -1,0 +1,107 @@
+.sign-up-left-container {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+}
+
+.sign-up-left-heading {
+    font-size: 90px;
+    color: #3F5D57;
+    text-align: left;
+    font-family: "Montserat", sans-serif;
+    font-weight: 900;
+    letter-spacing: -4.5px;
+    line-height: 80%;
+    width: 100%;
+}
+
+.sign-up-left-byline {
+    font-family: "Montserrat", sans-serif;
+    color: #717171;
+    margin-top: 25px;
+    text-align: left;
+    width: 100%;
+    font-size: 18px;
+}
+
+.sign-up-left-phone {
+    width: 50%;
+    height: 100%;
+    border: 3px solid #1c1c1c;
+    align-self: flex-start;
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    border-radius: 24px;
+    gap: auto;
+    overflow-y: hidden;
+}
+
+.sign-up-left-header {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 15%;
+    width: 100%;
+    padding: 10px 8px;
+}
+
+.search-bar {
+    width: 60%;
+    align-self: flex-end;
+    display: flex;
+    align-items: flex-end;
+    height: auto;
+    background-color: #ebebeb;
+    padding: 2px 8px;
+    border-radius: 24px;
+}
+
+.phone-icon {
+    align-self: flex-end;
+    height: 18px;
+    width: 18px;
+}
+
+#lock-icon {
+    height: 16px;
+    width: 16px;
+    font-weight: bold;
+}
+
+.sign-up-left-section {
+    height: 85%;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    background: #ebebeb;
+    padding: 10px 0;
+}
+
+.broker-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: calc(100%/5);
+    align-self: flex-start;
+}
+
+.broker-logo {
+    height: 50px;
+    width: 20%;
+}
+
+.broker-name {
+    font-family: "Montserrat", sans-serif;
+    color: #1c1c1c;
+    font-size: 17px;
+    width: 70%
+}

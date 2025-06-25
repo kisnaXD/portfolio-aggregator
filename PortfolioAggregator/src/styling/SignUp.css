@@ -1,0 +1,7 @@
+.sign-up-section {
+    height: 80vh;
+    width: 80vw;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
