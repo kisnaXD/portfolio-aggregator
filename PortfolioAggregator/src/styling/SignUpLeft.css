@@ -11,7 +11,7 @@
     font-size: 90px;
     color: #3F5D57;
     text-align: left;
-    font-family: "Montserat", sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     letter-spacing: -4.5px;
     line-height: 80%;
@@ -19,7 +19,7 @@
 }
 
 .sign-up-left-byline {
-    font-family: "Montserrat", sans-serif;
+    font-family: 'Montserrat', sans-serif;
     color: #717171;
     margin-top: 25px;
     text-align: left;
@@ -29,43 +29,40 @@
 
 .sign-up-left-phone {
     width: 50%;
-    height: 100%;
+    height: 500px; /* Fixed height for phone */
     border: 3px solid #1c1c1c;
     align-self: flex-start;
     margin-top: 25px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
     border-radius: 24px;
-    gap: auto;
-    overflow-y: hidden;
+    overflow: hidden; /* Prevent overflow outside phone */
 }
 
 .sign-up-left-header {
     display: flex;
     justify-content: space-around;
-    align-items: flex-end;
-    height: 15%;
+    align-items: center;
+    height: 50px; /* Fixed header height */
     width: 100%;
     padding: 10px 8px;
+    background-color: #333;
+    color: white;
 }
 
 .search-bar {
     width: 60%;
-    align-self: flex-end;
     display: flex;
-    align-items: flex-end;
-    height: auto;
+    align-items: center;
     background-color: #ebebeb;
     padding: 2px 8px;
     border-radius: 24px;
 }
 
 .phone-icon {
-    align-self: flex-end;
     height: 18px;
     width: 18px;
+    color: #fff; /* White icons for contrast */
 }
 
 #lock-icon {
@@ -75,33 +72,34 @@
 }
 
 .sign-up-left-section {
-    height: 85%;
+    flex: 1; /* Take remaining space */
     width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: column;
+    overflow-y: auto; /* Enable vertical scrolling */
     background: #ebebeb;
-    padding: 10px 0;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .broker-section {
     display: flex;
-    justify-content: center;
     align-items: center;
     width: 100%;
-    height: calc(100%/5);
-    align-self: flex-start;
+    padding: 8px;
+    background-color: #fff;
+    border-radius: 5px;
 }
 
 .broker-logo {
-    height: 50px;
+    height: 40px;
     width: 20%;
+    object-fit: contain;
 }
 
 .broker-name {
-    font-family: "Montserrat", sans-serif;
+    font-family: 'Montserrat', sans-serif;
     color: #1c1c1c;
     font-size: 17px;
-    width: 70%
+    width: 70%;
 }
