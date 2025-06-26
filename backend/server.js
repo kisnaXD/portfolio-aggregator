@@ -3,16 +3,27 @@ const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(helmet());
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
+// Rate limiting
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { error: 'Too many login attempts, please try again after 15 minutes' }
+});
+
 // Validate environment variables
-const requiredEnv = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_SOCKET', 'PORT'];
+const requiredEnv = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_SOCKET', 'PORT', 'JWT_SECRET'];
 requiredEnv.forEach(key => {
     if (!process.env[key]) {
         console.error(`Missing environment variable: ${key}`);
@@ -20,7 +31,7 @@ requiredEnv.forEach(key => {
     }
 });
 
-// MySQL connection using .env variables
+// MySQL connection
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -40,18 +51,19 @@ db.connect(err => {
 // Register endpoint
 app.post('/register', async (req, res) => {
     try {
-        const { username, email, password } = req.body;
-        if (!username || !email || !password) {
+        const { firstName, lastName, email, password, mobileNo } = req.body;
+        if (!firstName || !lastName || !email || !password || !mobileNo) {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const sql = 'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)';
-        db.query(sql, [username, email, hashedPassword], (err, result) => {
+        const sql = 'INSERT INTO users (first_name, last_name, email, password_hash, mobile_no) VALUES (?, ?, ?, ?, ?)';
+        db.query(sql, [firstName, lastName, email, hashedPassword, mobileNo], (err, result) => {
             if (err) {
                 if (err.code === 'ER_DUP_ENTRY') {
-                    return res.status(400).json({ error: 'Username or email already exists' });
+                    return res.status(400).json({ error: 'Email or phone number already exists' });
                 }
+                console.error('Database error:', err);
                 return res.status(500).json({ error: 'Registration failed' });
             }
             res.status(201).json({ message: 'User registered successfully' });
@@ -63,15 +75,15 @@ app.post('/register', async (req, res) => {
 });
 
 // Login endpoint
-app.post('/login', async (req, res) => {
+app.post('/login', loginLimiter, async (req, res) => {
     try {
-        const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password required' });
+        const { identifier, password } = req.body;
+        if (!identifier || !password) {
+            return res.status(400).json({ error: 'Email/phone number and password required' });
         }
 
-        const sql = 'SELECT * FROM users WHERE email = ?';
-        db.query(sql, [email], async (err, results) => {
+        const sql = 'SELECT * FROM users WHERE email = ? OR mobile_no = ?';
+        db.query(sql, [identifier, identifier], async (err, results) => {
             if (err || results.length === 0) {
                 return res.status(400).json({ error: 'Invalid credentials' });
             }
@@ -82,10 +94,31 @@ app.post('/login', async (req, res) => {
                 return res.status(400).json({ error: 'Invalid credentials' });
             }
 
-            res.json({ message: 'Login successful', userId: user.id });
+            const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            res.json({ message: 'Login successful', token });
         });
     } catch (err) {
         console.error('Login error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Verify token endpoint
+app.get('/verify', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
+
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                return res.status(401).json({ error: 'Invalid or expired token' });
+            }
+            res.json({ message: 'Token valid', userId: decoded.userId });
+        });
+    } catch (err) {
+        console.error('Verify error:', err);
         res.status(500).json({ error: 'Server error' });
     }
 });
