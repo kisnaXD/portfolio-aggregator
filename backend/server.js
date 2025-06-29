@@ -10,7 +10,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 
-// Middleware
+// CORS Middleware
 app.use(helmet());
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
@@ -23,7 +23,7 @@ const loginLimiter = rateLimit({
 });
 
 // Validate environment variables
-const requiredEnv = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_SOCKET', 'PORT', 'JWT_SECRET'];
+const requiredEnv = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'PORT', 'JWT_SECRET'];
 requiredEnv.forEach(key => {
     if (!process.env[key]) {
         console.error(`Missing environment variable: ${key}`);
@@ -36,8 +36,7 @@ const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    socketPath: process.env.DB_SOCKET
+    database: process.env.DB_NAME
 });
 
 db.connect(err => {
@@ -120,6 +119,29 @@ app.get('/verify', async (req, res) => {
     } catch (err) {
         console.error('Verify error:', err);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// User data endpoint
+app.get('/user', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ error: 'No token provided' });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const sql = 'SELECT id, email, first_name, last_name, mobile_no FROM users WHERE id = ?';
+        db.query(sql, [decoded.userId], (err, results) => {
+        if (err) {
+            console.error('User fetch error:', err);
+            return res.status(500).json({ error: 'Failed to fetch user data' });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.status(200).json(results[0]);
+        });
+    } catch (err) {
+        console.error('User fetch error:', err);
+        res.status(401).json({ error: 'Invalid or expired token' });
     }
 });
 
